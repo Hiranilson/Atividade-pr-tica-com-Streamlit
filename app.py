@@ -16,8 +16,6 @@ def plot_pyvis(grafo, solver, physics_options):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
 
-    net.show_buttons(filter_=['physics'])
-
     if solver == "repulsion":
         net.repulsion(
             central_gravity=physics_options["central_gravity"],
