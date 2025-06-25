@@ -16,12 +16,14 @@ def plot_pyvis(grafo, solver, physics_options):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
 
+    net.show_buttons(filter_=['physics'])
+
     if solver == "repulsion":
         net.repulsion(
-            node_distance=physics_options["node_distance"],
             central_gravity=physics_options["central_gravity"],
             spring_length=physics_options["spring_length"],
-            spring_constant=physics_options["spring_constant"],
+            spring_strength=physics_options["spring_constant"],
+            node_distance=physics_options["node_distance"],
             damping=physics_options["damping"]
         )
     elif solver == "barnesHut":
@@ -30,31 +32,30 @@ def plot_pyvis(grafo, solver, physics_options):
             gravitational_constant=physics_options["gravitational_constant"],
             central_gravity=physics_options["central_gravity"],
             spring_length=physics_options["spring_length"],
-            spring_constant=physics_options["spring_constant"],
-            damping=physics_options["damping"],
-            avoid_overlap=physics_options["avoid_overlap"]
+            spring_strength=physics_options["spring_constant"],
+            damping=physics_options["damping"]
         )
     elif solver == "forceAtlas2Based":
         net.force_atlas_2based(
             gravitational_constant=physics_options["gravitational_constant"],
             central_gravity=physics_options["central_gravity"],
             spring_length=physics_options["spring_length"],
-            spring_constant=physics_options["spring_constant"],
-            damping=physics_options["damping"],
-            avoid_overlap=physics_options["avoid_overlap"]
+            spring_strength=physics_options["spring_constant"],
+            damping=physics_options["damping"]
         )
     elif solver == "hierarchicalRepulsion":
-        net.hrepulsion(
+        net.hierarchical_repulsion(
             central_gravity=physics_options["central_gravity"],
             spring_length=physics_options["spring_length"],
-            spring_constant=physics_options["spring_constant"],
+            spring_strength=physics_options["spring_constant"],
             node_distance=physics_options["node_distance"],
             damping=physics_options["damping"]
         )
 
     net.save_graph("graph.html")
     with open("graph.html", "r", encoding="utf-8") as f:
-        return f.read()
+        html = f.read()
+    return html
 
 def plot_degree_distribution(grafo):
     graus = [grafo.degree(n) for n in grafo.nodes()]
