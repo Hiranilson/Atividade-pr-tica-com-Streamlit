@@ -1,4 +1,3 @@
-
 import streamlit as st
 import networkx as nx
 from pyvis.network import Network
@@ -6,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
+from networkx.algorithms.community import label_propagation_communities
 
 @st.cache_data
 def carregar_rede():
@@ -67,15 +67,61 @@ st.sidebar.header("Configurações")
 grafo = carregar_rede()
 st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number_of_edges()}")
 
-subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", ["Sub-rede Completa", "Maior Componente Conectado", "Top 10 por Grau"])
+subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
+    "Sub-rede Completa",
+    "Maior Componente Conectado",
+    "Top 10 por Grau",
+    "Conceitos de Aprendizado",
+    "Conceitos Aplicados",
+    "Biologia & Neurociência",
+    "Ética e Controvérsias",
+    "Vizinhança de 'Artificial Neural Network'",
+    "Comunidade Detectada"
+])
+
 if subgrafo_tipo == "Maior Componente Conectado":
     componentes = nx.weakly_connected_components(grafo) if grafo.is_directed() else nx.connected_components(grafo)
     maior = max(componentes, key=len)
     g_sub = grafo.subgraph(maior).copy()
+
 elif subgrafo_tipo == "Top 10 por Grau":
     graus = dict(grafo.degree())
     top10 = sorted(graus, key=graus.get, reverse=True)[:10]
     g_sub = grafo.subgraph(top10).copy()
+
+elif subgrafo_tipo == "Conceitos de Aprendizado":
+    chaves = ["learning", "network", "neuron", "deep", "supervised", "unsupervised"]
+    familia = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
+    g_sub = grafo.subgraph(familia).copy()
+
+elif subgrafo_tipo == "Conceitos Aplicados":
+    chaves = ["robot", "vision", "speech", "recognition", "diagnosis", "application"]
+    aplicacoes = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
+    g_sub = grafo.subgraph(aplicacoes).copy()
+
+elif subgrafo_tipo == "Biologia & Neurociência":
+    chaves = ["neuro", "synap", "brain", "cortex"]
+    bio = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
+    g_sub = grafo.subgraph(bio).copy()
+
+elif subgrafo_tipo == "Ética e Controvérsias":
+    chaves = ["bias", "ethic", "privacy", "fairness"]
+    etica = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
+    g_sub = grafo.subgraph(etica).copy()
+
+elif subgrafo_tipo == "Vizinhança de 'Artificial Neural Network'":
+    if "Artificial Neural Network" in grafo:
+        vizinhos = list(nx.single_source_shortest_path_length(grafo, "Artificial Neural Network", cutoff=2).keys())
+        g_sub = grafo.subgraph(vizinhos).copy()
+    else:
+        st.error("Nó 'Artificial Neural Network' não encontrado na rede.")
+        g_sub = nx.DiGraph()
+
+elif subgrafo_tipo == "Comunidade Detectada":
+    comunidades = list(label_propagation_communities(grafo.to_undirected()))
+    comunidade_escolhida = comunidades[0] if comunidades else []
+    g_sub = grafo.subgraph(comunidade_escolhida).copy()
+
 else:
     g_sub = grafo.copy()
 
