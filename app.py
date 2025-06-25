@@ -11,6 +11,29 @@ from networkx.algorithms.community import label_propagation_communities
 def carregar_rede():
     with open("rede.gpickle", "rb") as f:
         return pickle.load(f)
+    
+def ajustar_html_para_menu_lateral(html):
+    html = html.replace(
+        "<body>",
+        """<body>
+        <style>
+        .wrapper { display: flex; }
+        .graph-container { flex: 3; }
+        .menu-container { flex: 1; margin-left: 10px; }
+        </style>
+        <div class="wrapper">
+        <div class="graph-container">"""
+    )
+
+    html = html.replace(
+        "</body>",
+        """</div>
+        <div class="menu-container" id="physics" style="background-color:#333;color:#fff;padding:10px;border-radius:8px;"></div>
+        </div>
+        </body>"""
+    )
+
+    return html
 
 def plot_pyvis(grafo):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
@@ -61,30 +84,6 @@ def calcular_centralidades(g):
     except:
         centralidade["Eigenvector"] = {n: 0 for n in g.nodes()}
     return centralidade
-
-def ajustar_html_para_menu_lateral(html):
-    # Insere um estilo para layout horizontal com flexbox
-    html = html.replace(
-        "<body>",
-        """<body>
-        <style>
-        .wrapper { display: flex; }
-        .graph-container { flex: 3; }
-        .menu-container { flex: 1; margin-left: 10px; }
-        </style>
-        <div class="wrapper">
-        <div class="graph-container">"""
-    )
-
-    html = html.replace(
-        "</body>",
-        """</div>
-        <div class="menu-container" id="physics" style="background-color:#333;color:#fff;padding:10px;border-radius:8px;"></div>
-        </div>
-        </body>"""
-    )
-
-    return html
 
 st.set_page_config(page_title="Análise de Redes - Wikipédia", layout="wide")
 st.title("🌐 Análise de Redes Complexas com Pyvis e NetworkX")
