@@ -12,24 +12,49 @@ def carregar_rede():
     with open("rede.gpickle", "rb") as f:
         return pickle.load(f)
 
-def plot_pyvis(grafo, solver, central_gravity, node_distance, spring_length):
+def plot_pyvis(grafo, solver, physics_options):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
 
-    # Aplica parâmetros de física de acordo com o algoritmo escolhido
-    if solver == "barnesHut":
-        net.barnes_hut(gravity=-2000, central_gravity=central_gravity)
+    if solver == "repulsion":
+        net.repulsion(
+            node_distance=physics_options["node_distance"],
+            central_gravity=physics_options["central_gravity"],
+            spring_length=physics_options["spring_length"],
+            spring_constant=physics_options["spring_constant"],
+            damping=physics_options["damping"]
+        )
+    elif solver == "barnesHut":
+        net.barnes_hut(
+            theta=physics_options["theta"],
+            gravitational_constant=physics_options["gravitational_constant"],
+            central_gravity=physics_options["central_gravity"],
+            spring_length=physics_options["spring_length"],
+            spring_constant=physics_options["spring_constant"],
+            damping=physics_options["damping"],
+            avoid_overlap=physics_options["avoid_overlap"]
+        )
     elif solver == "forceAtlas2Based":
-        net.force_atlas_2based(gravity=-50)
-    elif solver == "repulsion":
-        net.repulsion(node_distance=node_distance, central_gravity=central_gravity, spring_length=spring_length)
+        net.force_atlas_2based(
+            gravitational_constant=physics_options["gravitational_constant"],
+            central_gravity=physics_options["central_gravity"],
+            spring_length=physics_options["spring_length"],
+            spring_constant=physics_options["spring_constant"],
+            damping=physics_options["damping"],
+            avoid_overlap=physics_options["avoid_overlap"]
+        )
     elif solver == "hierarchicalRepulsion":
-        net.hrepulsion(spring_length=spring_length)
+        net.hrepulsion(
+            central_gravity=physics_options["central_gravity"],
+            spring_length=physics_options["spring_length"],
+            spring_constant=physics_options["spring_constant"],
+            node_distance=physics_options["node_distance"],
+            damping=physics_options["damping"]
+        )
 
     net.save_graph("graph.html")
     with open("graph.html", "r", encoding="utf-8") as f:
-        html = f.read()
-    return html
+        return f.read()
 
 def plot_degree_distribution(grafo):
     graus = [grafo.degree(n) for n in grafo.nodes()]
@@ -69,15 +94,11 @@ def calcular_centralidades(g):
         centralidade["Eigenvector"] = {n: 0 for n in g.nodes()}
     return centralidade
 
-# Streamlit config
 st.set_page_config(page_title="Análise de Redes - Wikipédia", layout="wide")
 st.title("🌐 Análise de Redes Complexas com Pyvis e NetworkX")
 
-# Carregamento
+st.sidebar.header("Configurações da Rede")
 grafo = carregar_rede()
-
-# Painel lateral de configurações
-st.sidebar.header("⚙️ Configurações da Visualização")
 st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number_of_edges()}")
 
 subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
@@ -92,12 +113,6 @@ subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
     "Comunidade Detectada"
 ])
 
-solver = st.sidebar.selectbox("Algoritmo de Física", ["repulsion", "barnesHut", "forceAtlas2Based", "hierarchicalRepulsion"])
-central_gravity = st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3)
-node_distance = st.sidebar.slider("Distância entre Nós", 10, 500, 200)
-spring_length = st.sidebar.slider("Comprimento da Mola", 10, 300, 100)
-
-# Subgrafo selecionado
 if subgrafo_tipo == "Maior Componente Conectado":
     componentes = nx.weakly_connected_components(grafo) if grafo.is_directed() else nx.connected_components(grafo)
     maior = max(componentes, key=len)
@@ -144,12 +159,67 @@ elif subgrafo_tipo == "Comunidade Detectada":
 else:
     g_sub = grafo.copy()
 
-# Visualização
+# Parâmetros Físicos
+st.sidebar.header("⚙️ Parâmetros Físicos da Visualização")
+solver = st.sidebar.selectbox("Algoritmo de Física", [
+    "repulsion", "barnesHut", "forceAtlas2Based", "hierarchicalRepulsion"
+])
+
+physics_options = {}
+
+if solver == "repulsion":
+    st.sidebar.subheader("🔄 Repulsão")
+    physics_options = {
+        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
+        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
+        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
+        "node_distance": st.sidebar.slider("Distância entre Nós", 10, 500, 200),
+        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
+        "max_velocity": st.sidebar.slider("Velocidade Máxima", 1, 200, 50),
+        "min_velocity": st.sidebar.slider("Velocidade Mínima", 0.0, 5.0, 0.75),
+        "timestep": st.sidebar.slider("Intervalo de Tempo", 0.01, 2.0, 0.5),
+        "wind_x": st.sidebar.slider("Vento X", -5.0, 5.0, 0.0),
+        "wind_y": st.sidebar.slider("Vento Y", -5.0, 5.0, 0.0),
+    }
+
+elif solver == "barnesHut":
+    st.sidebar.subheader("🌌 Barnes-Hut")
+    physics_options = {
+        "theta": st.sidebar.slider("Theta", 0.0, 1.0, 0.5),
+        "gravitational_constant": st.sidebar.slider("Constante Gravitacional", -5000, -1, -2000),
+        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
+        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
+        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
+        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
+        "avoid_overlap": st.sidebar.checkbox("Evitar Sobreposição", value=True)
+    }
+
+elif solver == "forceAtlas2Based":
+    st.sidebar.subheader("🌐 ForceAtlas2")
+    physics_options = {
+        "gravitational_constant": st.sidebar.slider("Constante Gravitacional", -100, -1, -50),
+        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
+        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
+        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
+        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
+        "avoid_overlap": st.sidebar.checkbox("Evitar Sobreposição", value=True)
+    }
+
+elif solver == "hierarchicalRepulsion":
+    st.sidebar.subheader("🧬 Repulsão Hierárquica")
+    physics_options = {
+        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
+        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
+        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
+        "node_distance": st.sidebar.slider("Distância entre Nós", 10, 500, 200),
+        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09)
+    }
+
+# Renderização
 st.subheader("🔍 Visualização Interativa da Rede")
-html = plot_pyvis(g_sub, solver, central_gravity, node_distance, spring_length)
+html = plot_pyvis(g_sub, solver, physics_options)
 st.components.v1.html(html, height=600, scrolling=True)
 
-# Métricas
 st.subheader("📊 Métricas Estruturais da Rede")
 metricas = calcular_métricas(g_sub)
 col1, col2, col3 = st.columns(3)
@@ -160,11 +230,9 @@ col3.metric("Clustering", round(metricas["Coeficiente de Clustering"], 4))
 col4.metric("Componentes Fortemente Conectados", metricas["Componentes Fortemente Conectados"] if metricas["Componentes Fortemente Conectados"] is not None else "N/A")
 col5.metric("Componentes Fracamente Conectados", metricas["Componentes Fracamente Conectados"])
 
-# Grau
-st.subheader("🎯 Distribuição de Grau dos Nós")
+st.subheader("🌟 Distribuição de Grau dos Nós")
 plot_degree_distribution(g_sub)
 
-# Centralidade
 st.subheader("🏆 Centralidade dos Nós")
 centralidades = calcular_centralidades(g_sub)
 tipo_centralidade = st.selectbox("Selecione a Métrica de Centralidade", list(centralidades.keys()))
