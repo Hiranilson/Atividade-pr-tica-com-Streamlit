@@ -2,9 +2,9 @@
 
 Este projeto implementa uma aplicação interativa para **análise de redes complexas**, utilizando dados extraídos da Wikipédia com base no termo "Artificial Neural Network".
 
-Devido ao tamanho elevado, foi selecionada uma **sub-rede composta pelos 1.249 nós com grau maior que 24**, que representam os termos mais conectados da rede original. Isso garante desempenho e visualização adequada na aplicação.
+A rede completa contém milhares de nós, então foi utilizada uma **sub-rede com os 100 nós de maior grau**, garantindo desempenho e visualização adequados.
 
-A interface foi construída com **Streamlit** e a visualização interativa com **Pyvis**.
+A interface interativa foi desenvolvida com **Streamlit** e a visualização da rede com **Pyvis**. Os usuários podem navegar, explorar métricas e identificar os nós mais importantes da rede.
 
 ## 🔗 Repositório
 
@@ -17,14 +17,22 @@ A interface foi construída com **Streamlit** e a visualização interativa com 
 
 ## 🚀 Funcionalidades
 
-- 🔍 Visualização interativa da rede com Pyvis
-- 📊 Cálculo de métricas estruturais:
+- 🔍 **Visualização interativa da rede** com Pyvis
+- 📌 **Seleção de Subgrafos**:
+  - Sub-rede completa
+  - Top 10 nós por grau
+  - Conceitos de aprendizado
+  - Conceitos aplicados
+  - Biologia & neurociência
+  - Vizinhança de "Artificial Neural Network"
+  - Comunidade detectada automaticamente
+- 📊 **Métricas Estruturais da Rede**:
   - Densidade
   - Assortatividade
   - Coeficiente de Clustering
   - Componentes Fortemente e Fracamente Conectados
-- 🎯 Distribuição de grau dos nós
-- 🏆 Rankings de centralidade:
+- 🎯 **Distribuição de grau dos nós**
+- 🏆 **Rankings de centralidade**:
   - Degree
   - Eigenvector
   - Closeness
@@ -45,9 +53,9 @@ A interface foi construída com **Streamlit** e a visualização interativa com 
 ```
 📦 Atividade-pr-tica-com-Streamlit
  ┣ 📜 app.py               ← Código principal da aplicação
- ┣ 📜 rede.gpickle         ← Grafo extraído da Wikipédia
+ ┣ 📜 rede.gpickle         ← Subgrafo salvo da rede da Wikipédia
  ┣ 📜 requirements.txt     ← Dependências do projeto
- ┗ 📜 README.md            ← Este arquivo
+ ┗ 📜 README.md            ← Este documento
 ```
 
 ## 💻 Como executar localmente
