@@ -12,44 +12,11 @@ def carregar_rede():
     with open("rede.gpickle", "rb") as f:
         return pickle.load(f)
 
-def plot_pyvis(grafo, solver, physics_options):
-    net = Network(height="590px", width="100%", bgcolor="#222222", font_color="white")
+def plot_pyvis(grafo):
+    net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
-
-    if solver == "repulsion":
-        net.repulsion(
-            central_gravity=physics_options["central_gravity"],
-            spring_length=physics_options["spring_length"],
-            spring_strength=physics_options["spring_constant"],
-            node_distance=physics_options["node_distance"],
-            damping=physics_options["damping"]
-        )
-    elif solver == "barnesHut":
-        net.barnes_hut(
-            theta=physics_options["theta"],
-            gravitational_constant=physics_options["gravitational_constant"],
-            central_gravity=physics_options["central_gravity"],
-            spring_length=physics_options["spring_length"],
-            spring_strength=physics_options["spring_constant"],
-            damping=physics_options["damping"]
-        )
-    elif solver == "forceAtlas2Based":
-        net.force_atlas_2based(
-            gravitational_constant=physics_options["gravitational_constant"],
-            central_gravity=physics_options["central_gravity"],
-            spring_length=physics_options["spring_length"],
-            spring_strength=physics_options["spring_constant"],
-            damping=physics_options["damping"]
-        )
-    elif solver == "hierarchicalRepulsion":
-        net.hierarchical_repulsion(
-            central_gravity=physics_options["central_gravity"],
-            spring_length=physics_options["spring_length"],
-            spring_strength=physics_options["spring_constant"],
-            node_distance=physics_options["node_distance"],
-            damping=physics_options["damping"]
-        )
-
+    net.show_buttons(filter_=['physics'])
+    net.repulsion(node_distance=200, central_gravity=0.3)
     net.save_graph("graph.html")
     with open("graph.html", "r", encoding="utf-8") as f:
         html = f.read()
@@ -96,7 +63,7 @@ def calcular_centralidades(g):
 st.set_page_config(page_title="Análise de Redes - Wikipédia", layout="wide")
 st.title("🌐 Análise de Redes Complexas com Pyvis e NetworkX")
 
-st.sidebar.header("Configurações da Rede")
+st.sidebar.header("Configurações")
 grafo = carregar_rede()
 st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number_of_edges()}")
 
@@ -158,65 +125,8 @@ elif subgrafo_tipo == "Comunidade Detectada":
 else:
     g_sub = grafo.copy()
 
-# Parâmetros Físicos
-st.sidebar.header("⚙️ Parâmetros Físicos da Visualização")
-solver = st.sidebar.selectbox("Algoritmo de Física", [
-    "repulsion", "barnesHut", "forceAtlas2Based", "hierarchicalRepulsion"
-])
-
-physics_options = {}
-
-if solver == "repulsion":
-    st.sidebar.subheader("🔄 Repulsão")
-    physics_options = {
-        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
-        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
-        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
-        "node_distance": st.sidebar.slider("Distância entre Nós", 10, 500, 200),
-        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
-        "max_velocity": st.sidebar.slider("Velocidade Máxima", 1, 200, 50),
-        "min_velocity": st.sidebar.slider("Velocidade Mínima", 0.0, 5.0, 0.75),
-        "timestep": st.sidebar.slider("Intervalo de Tempo", 0.01, 2.0, 0.5),
-        "wind_x": st.sidebar.slider("Vento X", -5.0, 5.0, 0.0),
-        "wind_y": st.sidebar.slider("Vento Y", -5.0, 5.0, 0.0),
-    }
-
-elif solver == "barnesHut":
-    st.sidebar.subheader("🌌 Barnes-Hut")
-    physics_options = {
-        "theta": st.sidebar.slider("Theta", 0.0, 1.0, 0.5),
-        "gravitational_constant": st.sidebar.slider("Constante Gravitacional", -5000, -1, -2000),
-        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
-        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
-        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
-        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
-        "avoid_overlap": st.sidebar.checkbox("Evitar Sobreposição", value=True)
-    }
-
-elif solver == "forceAtlas2Based":
-    st.sidebar.subheader("🌐 ForceAtlas2")
-    physics_options = {
-        "gravitational_constant": st.sidebar.slider("Constante Gravitacional", -100, -1, -50),
-        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
-        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
-        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
-        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09),
-        "avoid_overlap": st.sidebar.checkbox("Evitar Sobreposição", value=True)
-    }
-
-elif solver == "hierarchicalRepulsion":
-    st.sidebar.subheader("🧬 Repulsão Hierárquica")
-    physics_options = {
-        "central_gravity": st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3),
-        "spring_length": st.sidebar.slider("Comprimento da Mola", 10, 300, 200),
-        "spring_constant": st.sidebar.slider("Constante da Mola", 0.001, 1.0, 0.05),
-        "node_distance": st.sidebar.slider("Distância entre Nós", 10, 500, 200),
-        "damping": st.sidebar.slider("Amortecimento", 0.0, 1.0, 0.09)
-    }
-
-# Renderização
 st.subheader("🔍 Visualização Interativa da Rede")
-html = plot_pyvis(g_sub, solver, physics_options)
+html = plot_pyvis(g_sub)
 st.components.v1.html(html, height=600, scrolling=True)
 
 st.subheader("📊 Métricas Estruturais da Rede")
@@ -229,7 +139,7 @@ col3.metric("Clustering", round(metricas["Coeficiente de Clustering"], 4))
 col4.metric("Componentes Fortemente Conectados", metricas["Componentes Fortemente Conectados"] if metricas["Componentes Fortemente Conectados"] is not None else "N/A")
 col5.metric("Componentes Fracamente Conectados", metricas["Componentes Fracamente Conectados"])
 
-st.subheader("🌟 Distribuição de Grau dos Nós")
+st.subheader("🎯 Distribuição de Grau dos Nós")
 plot_degree_distribution(g_sub)
 
 st.subheader("🏆 Centralidade dos Nós")
