@@ -13,7 +13,7 @@ def carregar_rede():
         return pickle.load(f)
 
 def plot_pyvis(grafo, solver, physics_options):
-    net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
+    net = Network(height="500px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
 
     if solver == "repulsion":
