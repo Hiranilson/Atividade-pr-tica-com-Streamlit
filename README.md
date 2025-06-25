@@ -45,7 +45,7 @@ A interface foi construída com **Streamlit** e a visualização interativa com 
 ```
 📦 Atividade-pr-tica-com-Streamlit
  ┣ 📜 app.py               ← Código principal da aplicação
- ┣ 📜 rede.gpickle         ← Sub-rede com os 1.249 nós mais conectados
+ ┣ 📜 rede.gpickle         ← Grafo extraído da Wikipédia
  ┣ 📜 requirements.txt     ← Dependências do projeto
  ┗ 📜 README.md            ← Este arquivo
 ```
