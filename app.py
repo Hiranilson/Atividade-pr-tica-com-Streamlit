@@ -13,7 +13,7 @@ def carregar_rede():
         return pickle.load(f)
 
 def plot_pyvis(grafo):
-    net = Network(height="700px", width="900px", bgcolor="#222222", font_color="white")
+    net = Network(height="590px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
     net.show_buttons(filter_=['physics'])
     net.repulsion(node_distance=200, central_gravity=0.3)
