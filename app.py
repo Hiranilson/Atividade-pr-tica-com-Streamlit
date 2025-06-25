@@ -67,7 +67,7 @@ st.sidebar.header("Configurações")
 grafo = carregar_rede()
 st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number_of_edges()}")
 
-subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", ["Rede Completa", "Maior Componente Conectado", "Top 10 por Grau"])
+subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", ["Sub-rede Completa", "Maior Componente Conectado", "Top 10 por Grau"])
 if subgrafo_tipo == "Maior Componente Conectado":
     componentes = nx.weakly_connected_components(grafo) if grafo.is_directed() else nx.connected_components(grafo)
     maior = max(componentes, key=len)
