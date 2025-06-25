@@ -12,40 +12,50 @@ def carregar_rede():
     with open("rede.gpickle", "rb") as f:
         return pickle.load(f)
     
-def ajustar_html_para_menu_lateral(html):
-    html = html.replace(
-        "<body>",
-        """<body>
-        <style>
-        .wrapper { display: flex; }
-        .graph-container { flex: 3; }
-        .menu-container { flex: 1; margin-left: 10px; }
-        </style>
-        <div class="wrapper">
-        <div class="graph-container">"""
-    )
-
-    html = html.replace(
-        "</body>",
-        """</div>
-        <div class="menu-container" id="physics" style="background-color:#333;color:#fff;padding:10px;border-radius:8px;"></div>
-        </div>
-        </body>"""
-    )
-
-    return html
-
 def plot_pyvis(grafo):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
     net.show_buttons(filter_=['physics'])
     net.repulsion(node_distance=200, central_gravity=0.3)
     net.save_graph("graph.html")
+
     with open("graph.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    html_modificado = ajustar_html_para_menu_lateral(html)
-    return html_modificado
+    return ajustar_layout_lateral(html)
+
+def ajustar_layout_lateral(html):
+    # Adiciona um layout flexbox forçado para separação em colunas
+    estilo_customizado = """
+    <style>
+    .wrapper-flex {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+    }
+    .graph-flex {
+        flex: 3;
+        min-width: 600px;
+    }
+    .menu-flex {
+        flex: 1;
+        min-width: 250px;
+    }
+    </style>
+    """
+
+    # Envolve o gráfico e o menu no wrapper flexível
+    html = html.replace(
+        "<body>",
+        f"<body>{estilo_customizado}<div class='wrapper-flex'><div class='graph-flex'>"
+    )
+
+    html = html.replace(
+        "</body>",
+        "</div><div class='menu-flex'><div id='physics'></div></div></div></body>"
+    )
+
+    return html
 
 def plot_degree_distribution(grafo):
     graus = [grafo.degree(n) for n in grafo.nodes()]
