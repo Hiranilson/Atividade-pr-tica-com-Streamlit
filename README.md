@@ -75,11 +75,6 @@ streamlit run app.py
 http://localhost:8501
 ```
 
-## 🌐 Publicação com Streamlit Cloud
-
-A aplicação já está publicada em:  
-[https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app](https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app)
-
 ---
 
 ## ✨ Autor
