@@ -69,22 +69,15 @@ st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number
 
 subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
     "Sub-rede Completa",
-    "Maior Componente Conectado",
     "Top 10 por Grau",
     "Conceitos de Aprendizado",
     "Conceitos Aplicados",
     "Biologia & Neurociência",
-    "Ética e Controvérsias",
     "Vizinhança de 'Artificial Neural Network'",
     "Comunidade Detectada"
 ])
 
-if subgrafo_tipo == "Maior Componente Conectado":
-    componentes = nx.weakly_connected_components(grafo) if grafo.is_directed() else nx.connected_components(grafo)
-    maior = max(componentes, key=len)
-    g_sub = grafo.subgraph(maior).copy()
-
-elif subgrafo_tipo == "Top 10 por Grau":
+if subgrafo_tipo == "Top 10 por Grau":
     graus = dict(grafo.degree())
     top10 = sorted(graus, key=graus.get, reverse=True)[:10]
     g_sub = grafo.subgraph(top10).copy()
@@ -103,11 +96,6 @@ elif subgrafo_tipo == "Biologia & Neurociência":
     chaves = ["neuro", "synap", "brain", "cortex"]
     bio = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
     g_sub = grafo.subgraph(bio).copy()
-
-elif subgrafo_tipo == "Ética e Controvérsias":
-    chaves = ["bias", "ethic", "privacy", "fairness"]
-    etica = [n for n in grafo.nodes if any(p in n.lower() for p in chaves)]
-    g_sub = grafo.subgraph(etica).copy()
 
 elif subgrafo_tipo == "Vizinhança de 'Artificial Neural Network'":
     if "Artificial Neural Network" in grafo:
