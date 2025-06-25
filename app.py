@@ -11,50 +11,24 @@ from networkx.algorithms.community import label_propagation_communities
 def carregar_rede():
     with open("rede.gpickle", "rb") as f:
         return pickle.load(f)
-    
-def plot_pyvis(grafo):
+
+def plot_pyvis(grafo, solver, central_gravity, node_distance, spring_length):
     net = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
     net.from_nx(grafo)
-    net.show_buttons(filter_=['physics'])
-    net.repulsion(node_distance=200, central_gravity=0.3)
-    net.save_graph("graph.html")
 
+    # Aplica parâmetros de física de acordo com o algoritmo escolhido
+    if solver == "barnesHut":
+        net.barnes_hut(gravity=-2000, central_gravity=central_gravity)
+    elif solver == "forceAtlas2Based":
+        net.force_atlas_2based(gravity=-50)
+    elif solver == "repulsion":
+        net.repulsion(node_distance=node_distance, central_gravity=central_gravity, spring_length=spring_length)
+    elif solver == "hierarchicalRepulsion":
+        net.hrepulsion(spring_length=spring_length)
+
+    net.save_graph("graph.html")
     with open("graph.html", "r", encoding="utf-8") as f:
         html = f.read()
-
-    return ajustar_layout_lateral(html)
-
-def ajustar_layout_lateral(html):
-    # Adiciona um layout flexbox forçado para separação em colunas
-    estilo_customizado = """
-    <style>
-    .wrapper-flex {
-        display: flex;
-        flex-direction: row;
-        gap: 20px;
-    }
-    .graph-flex {
-        flex: 3;
-        min-width: 600px;
-    }
-    .menu-flex {
-        flex: 1;
-        min-width: 250px;
-    }
-    </style>
-    """
-
-    # Envolve o gráfico e o menu no wrapper flexível
-    html = html.replace(
-        "<body>",
-        f"<body>{estilo_customizado}<div class='wrapper-flex'><div class='graph-flex'>"
-    )
-
-    html = html.replace(
-        "</body>",
-        "</div><div class='menu-flex'><div id='physics'></div></div></div></body>"
-    )
-
     return html
 
 def plot_degree_distribution(grafo):
@@ -95,11 +69,15 @@ def calcular_centralidades(g):
         centralidade["Eigenvector"] = {n: 0 for n in g.nodes()}
     return centralidade
 
+# Streamlit config
 st.set_page_config(page_title="Análise de Redes - Wikipédia", layout="wide")
 st.title("🌐 Análise de Redes Complexas com Pyvis e NetworkX")
 
-st.sidebar.header("Configurações")
+# Carregamento
 grafo = carregar_rede()
+
+# Painel lateral de configurações
+st.sidebar.header("⚙️ Configurações da Visualização")
 st.sidebar.write(f"🔗 Nós: {grafo.number_of_nodes()} | Arestas: {grafo.number_of_edges()}")
 
 subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
@@ -114,6 +92,12 @@ subgrafo_tipo = st.sidebar.selectbox("Selecione Subgrafo", [
     "Comunidade Detectada"
 ])
 
+solver = st.sidebar.selectbox("Algoritmo de Física", ["repulsion", "barnesHut", "forceAtlas2Based", "hierarchicalRepulsion"])
+central_gravity = st.sidebar.slider("Gravidade Central", 0.0, 1.0, 0.3)
+node_distance = st.sidebar.slider("Distância entre Nós", 10, 500, 200)
+spring_length = st.sidebar.slider("Comprimento da Mola", 10, 300, 100)
+
+# Subgrafo selecionado
 if subgrafo_tipo == "Maior Componente Conectado":
     componentes = nx.weakly_connected_components(grafo) if grafo.is_directed() else nx.connected_components(grafo)
     maior = max(componentes, key=len)
@@ -160,10 +144,12 @@ elif subgrafo_tipo == "Comunidade Detectada":
 else:
     g_sub = grafo.copy()
 
+# Visualização
 st.subheader("🔍 Visualização Interativa da Rede")
-html = plot_pyvis(g_sub)
+html = plot_pyvis(g_sub, solver, central_gravity, node_distance, spring_length)
 st.components.v1.html(html, height=600, scrolling=True)
 
+# Métricas
 st.subheader("📊 Métricas Estruturais da Rede")
 metricas = calcular_métricas(g_sub)
 col1, col2, col3 = st.columns(3)
@@ -174,9 +160,11 @@ col3.metric("Clustering", round(metricas["Coeficiente de Clustering"], 4))
 col4.metric("Componentes Fortemente Conectados", metricas["Componentes Fortemente Conectados"] if metricas["Componentes Fortemente Conectados"] is not None else "N/A")
 col5.metric("Componentes Fracamente Conectados", metricas["Componentes Fracamente Conectados"])
 
+# Grau
 st.subheader("🎯 Distribuição de Grau dos Nós")
 plot_degree_distribution(g_sub)
 
+# Centralidade
 st.subheader("🏆 Centralidade dos Nós")
 centralidades = calcular_centralidades(g_sub)
 tipo_centralidade = st.selectbox("Selecione a Métrica de Centralidade", list(centralidades.keys()))
