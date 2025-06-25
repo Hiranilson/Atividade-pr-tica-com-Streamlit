@@ -2,6 +2,8 @@
 
 Este projeto implementa uma aplicação interativa para **análise de redes complexas**, utilizando dados extraídos da Wikipédia com base no termo "Artificial Neural Network".
 
+Devido ao tamanho elevado, foi selecionada uma **sub-rede composta pelos 1.249 nós com grau maior que 24**, que representam os termos mais conectados da rede original. Isso garante desempenho e visualização adequada na aplicação.
+
 A interface foi construída com **Streamlit** e a visualização interativa com **Pyvis**.
 
 ## 🔗 Repositório
@@ -43,7 +45,7 @@ A interface foi construída com **Streamlit** e a visualização interativa com 
 ```
 📦 Atividade-pr-tica-com-Streamlit
  ┣ 📜 app.py               ← Código principal da aplicação
- ┣ 📜 rede.gpickle         ← Grafo extraído da Wikipédia
+ ┣ 📜 rede.gpickle         ← Sub-rede com os 1249 nós mais conectados
  ┣ 📜 requirements.txt     ← Dependências do projeto
  ┗ 📜 README.md            ← Este arquivo
 ```
