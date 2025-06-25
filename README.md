@@ -10,11 +10,8 @@ A interface foi construída com **Streamlit** e a visualização interativa com 
 
 ## 🌍 Aplicação Online (Streamlit Cloud)
 
-> ⚠️ **Adicione aqui o link da sua aplicação quando publicar no Streamlit Cloud**
-
-```text
-https://hiranilson-atividade-pr-tica-com-streamlit.streamlit.app
-```
+✅ Acesse aqui:  
+[https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app](https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app)
 
 ## 🚀 Funcionalidades
 
@@ -80,13 +77,8 @@ http://localhost:8501
 
 ## 🌐 Publicação com Streamlit Cloud
 
-Para publicar online:
-
-1. Vá para https://streamlit.io/cloud
-2. Faça login com sua conta do GitHub
-3. Clique em “New app” e selecione este repositório
-4. Escolha o arquivo `app.py` e clique em **Deploy**
-5. Cole o link gerado acima em "Aplicação Online"
+A aplicação já está publicada em:  
+[https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app](https://atividade-pr-tica-com-app-g847jneeqceezufiqpg7st.streamlit.app)
 
 ---
 
